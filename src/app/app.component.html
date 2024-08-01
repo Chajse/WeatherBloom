@@ -1,0 +1,186 @@
+<div class="relative mb-6">
+  <div class="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
+    <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+      <path stroke="currentColor" stroke-linecap="round" stroke-width="2" d="m21 21-3.5-3.5M17 10a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"/>
+    </svg>        
+  </div>
+  <form [formGroup]="searchForm" class="suggestion-container">
+    <input (focus)="onInputFocus()" (blur)="onInputBlur()" formControlName="city" type="text" id="input-group-1" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Search your City">
+    <ul *ngIf="inputFocused && (suggestions?.length > 0 || showNotFoundMessage || loadingSuggestions)"
+      class="max-h-[50vh] overflow-auto absolute b-0 z-10 rounded-lg p-1.5 text-sm text-gray-500 noshadow shadow-lg w-full bg-slate-50 border-gray-300 border">
+      <ng-container *ngIf="!loadingSuggestions; else loadingDisplay">
+        <ng-container *ngIf="suggestions?.length !== 0; else locationNotFound">
+          <li *ngFor="let location of suggestions"
+          class="py-1.5 z-50 px-2 border-b cursor-pointer hover:bg-sky-100 hover:shadow-lg border-gray-300 last:border-b-0"
+          (mousedown)="onSuggestionMouseDown()" (mouseup)="onSuggestionMouseUp()"
+          (click)="onSuggestionClick(location)">
+          <div class="flex justify-between my-auto gap-4">
+            <div class="my-auto">
+              <p class="font-semibold text-xs">{{location.country}} - {{location.name}}</p>
+              <p matTooltip="State: {{location.state}}" class="text-[0.70rem] truncate w-[20vh]">
+                {{location.state}}
+              </p>
+            </div>
+            <div class="text-[0.60rem] text-center my-auto -space-y-2 w-100%">
+              <p matTooltip="Latitude: {{location.lat}}" class="truncate">Lat: {{location.lat}}</p>
+              <p matTooltip="Longitude: {{location.lon}}" class="truncate">Lon: {{location.lon}}</p>
+            </div>
+          </div>
+        </li>
+      </ng-container>
+    </ng-container>
+    
+  </ul>
+</form>
+</div>
+<div class="container">
+  <div class="upper-data">
+    <!-- <img src="../assets/images/sunny.png" *ngIf="14 > 15">
+    <img src="../assets/images/Partlycloud.png" *ngIf="14 <= 15"> -->
+      
+    <div class="weather-data">
+      <button [matMenuTriggerFor]="settings">
+        <div class="boltIcon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bolt">
+            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><circle cx="12" cy="12" r="4"/></svg>
+        </div>
+       
+      </button>
+      <mat-menu #settings xPosition="after" yPosition="above">
+        <div class="menu">
+          <ul>
+            <li class="font-black">
+              Temperature</li>
+            <li>
+              <button class="text-black font-normal" (click)="changeMetricSystem('&units=standard')">Measure by Kelvin</button></li>
+            <li>
+              <button class="text-black font-normal" (click)="changeMetricSystem('&units=imperial')">Measure by Fahrenheit</button></li>
+            <li>
+              <button class="text-black font-normal" (click)="changeMetricSystem('&units=metric')">Measure by Celsius</button></li>
+          </ul>
+        </div>
+      </mat-menu>
+      <div *ngIf="weatherData">
+        <div class="location">{{weatherData.name}}</div>
+        
+        <div class="temperature">{{weatherData.weather[0].main}}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="lower-data">
+    <div class="info-container">
+      <div class="more-info-label">
+      Information
+        </div>
+      <div class="view-options">
+        <button (click)="toggleAdvanced()" class="rounded-s-md" [ngClass]="{'bg-[var(--yellow-1)]' : !showAdvanced}" >Basic</button>
+        <!-- <div></div> -->
+        <button (click)="toggleAdvanced()" class="rounded-e-md" [ngClass]="{'bg-[var(--yellow-1)]' : showAdvanced}">Advanced</button>
+      </div>
+    </div>
+    <div *ngIf="weatherData" class="more-info-container">
+      
+      
+      <div *ngIf="!showAdvanced" class="grid grid-cols-2 gap-10">
+        <div class="info-block grid-cols-1">
+          <div class="info-block-label">
+            <img src="../assets/images/temperatureDark.png">
+            <span>min</span>
+          </div>
+          <div class="info-block-value">
+            {{weatherData.main.temp_min}}°{{getMetricSymbol(metricSystem)}}
+          </div>
+        </div>
+        <div class="info-block grid-cols-1">
+          <div class="info-block-label">
+            <img src="../assets/images/hot.png">
+            <span>max</span>
+          </div>
+          <div class="info-block-value">
+            {{weatherData.main.temp_max}}°{{getMetricSymbol(metricSystem)}}
+          </div>
+        </div>
+  
+        <div class="info-block grid-cols-1">
+          <div class="info-block-label">
+            <img src="../assets/images/humid.png">
+            <span>humidity</span>
+          </div>
+          <div class="info-block-value">
+            {{weatherData.main.humidity}}%
+          </div>
+        </div>
+  
+        <div class="info-block grid-cols-1">
+          <div class="info-block-label">
+            <img src="../assets/images/clouds.png">
+            <span>cloud</span>
+          </div>
+          <div class="info-block-value text-nowrap">
+            {{weatherData.clouds.all}}%
+          </div>
+        </div>
+
+      </div>
+
+
+
+
+      <div *ngIf="showAdvanced" class="grid grid-cols-2 gap-10">
+        <div class="info-block grid-cols-1">
+          <div class="info-block-label">
+            <img src="../assets/images/sea-level.png">
+            <span>sea level</span>
+          </div>
+          <div class="info-block-value">
+            {{weatherData.main.sea_level}}m
+          </div>
+        </div>
+        <div class="info-block grid-cols-1">
+          <div class="info-block-label">
+            <img src="../assets/images/raining.png">
+            <span class="text-center">hourly rainfall</span>
+          </div>
+          <div class="info-block-value">
+            {{weatherData.rain?.['1h'] || 0}}mm/h
+          </div>
+        </div>
+  
+        <div class="info-block grid-cols-1">
+          <div class="info-block-label">
+            <img src="../assets/images/wind.png">
+            <span class="text-center">wind speed</span>
+          </div>
+          <div class="info-block-value">
+            {{weatherData.wind.speed}}km/h
+          </div>
+        </div>
+  
+        <div class="info-block grid-cols-1">
+          <div class="info-block-label">
+            <img src="../assets/images/wind-direction.png">
+            <span>wind</span>
+          </div>
+          <div class="info-block-value">
+            {{weatherData.wind.deg}}°{{getMetricSymbol(metricSystem)}}
+          </div>
+        </div>
+
+      </div>
+
+
+    </div>
+  
+  </div>
+</div>
+
+<ng-template #loadingDisplay>
+  loading...
+</ng-template>
+
+<ng-template #locationNotFound>
+  loading...
+</ng-template>
+
+<router-outlet></router-outlet>
