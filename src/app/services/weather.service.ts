@@ -17,6 +17,9 @@ export class WeatherService {
   searchByLocation(inputdata: any) {
     return this.http.post(`${this.API_URL}/search-location`, inputdata);
   }
+  getForecastByLocation(inputdata:any){
+    return this.http.post(`${this.API_URL}/forecast-location`, inputdata);
+  }
 
 
   geocodeByCity(inputdata: any) {

@@ -156,5 +156,35 @@ class Post extends GlobalMethods
         return $this->sendPayload($resultArray, "success", "Request Success!", 200);
     }
 
+    public function getForecastByLocation($data)
+    {
+        $validMetricSystems = ['&units=standard', '&units=metric', '&units=imperial'];
+        if (!in_array($data->metricSystem, $validMetricSystems)) {
+            return $this->sendPayload(null, "failed", "Invalid metric system..", 400);
+        }
+        if (!isset($data->lat) || !isset($data->lon)) {
+            return $this->sendPayload(null, "failed", "Please enter a Location.", 400);
+        }
+
+        $lat = $data->lat;
+        $lon = $data->lon;
+        $metricSystem = $data->metricSystem;
+        $api_key = $this->openWeatherKey;
+        $api = "https://api.openweathermap.org/data/2.5/forecast?lat=$lat&lon=$lon&appid=$api_key&$metricSystem";
+
+        $result = file_get_contents($api);
+
+        if ($result === false) {
+            return $this->sendPayload(null, "failed", "Unable to fetch weather data.", 500);
+        }
+
+        $resultArray = json_decode($result, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            return $this->sendPayload(null, "failed", "Invalid JSON response.", 500);
+        }
+
+        return $this->sendPayload($resultArray, "success", "Request Success!", 200);
+    }
 
 }

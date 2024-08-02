@@ -184,7 +184,6 @@ export class AppComponent implements OnInit, OnDestroy {
       this.weather.searchByLocation(userLocation).subscribe(
         (res: any) => {
           this.weatherData = res.payload;
-          console.log(this.weatherData);
           this.loading = false;
         },
         (error) => {
@@ -193,6 +192,17 @@ export class AppComponent implements OnInit, OnDestroy {
         }
       )
     );
+    this.subscriptions.add(
+      this.weather.getForecastByLocation(userLocation).subscribe((res:any)=>{
+        this.forecastData = res.payload;
+        console.log(this.forecastData);
+        this.loading = false;
+      },
+      (error) => {
+        console.error('Error fetching weather:', error);
+        this.loading = false;
+      })
+    )
   }
 
   searchByCity() {
@@ -260,9 +270,9 @@ export class AppComponent implements OnInit, OnDestroy {
   getMetricSymbol(metric: string): string {
     switch (metric) {
       case '&units=metric':
-        return 'C';
+        return '°C';
       case '&units=imperial':
-        return 'F';
+        return '°F';
       case '&units=standard':
         return 'K';
       default:

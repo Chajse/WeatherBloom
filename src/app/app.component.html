@@ -1,4 +1,5 @@
-<div class="h-screen flex justify-center items-center">
+<div class="h-screen flex justify-center items-center relative">
+  <div style="background-image: url(../assets/images/bsky.jpg); background-repeat: no-repeat; background-position: center; background-size: cover; filter: blur(3px) brightness(0.8);" class="absolute w-full h-screen -z-50"></div>
   <div class="w-full">
     <div class="w-[50%] mx-auto mb-5 flex items-center">
       <form class="suggestion-container w-full" [formGroup]="searchForm">
@@ -167,25 +168,25 @@
                     />
                   </svg>
 
-                  {{ weatherData.name }}, {{ weatherData.sys.country }}
+                  {{ weatherData?.name }}, {{ weatherData?.sys.country }}
                 </p>
               </div>
               <div>
                 <img
                   [src]="
                     'https://openweathermap.org/img/wn/' +
-                    weatherData.weather[0].icon +
+                    weatherData?.weather[0].icon +
                     '@2x.png'
                   "
                   class="-ms-3 -mb-5 h-40"
                 />
                 <strong class="leading-none text-6xl block font-weight-bolder">
-                  {{ weatherData.main.temp }}°{{
+                  {{ weatherData?.main.temp }}{{
                     getMetricSymbol(metricSystem)
                   }}</strong
                 >
                 <b class="text-2xl block font-bold">{{
-                  weatherData.weather[0].main
+                  weatherData?.weather[0].main
                 }}</b>
               </div>
             </div>
@@ -229,7 +230,7 @@
                 >
                   <div class="text-center">
                     <strong class="text-xl">
-                      {{ weatherData.main.temp_min }}°{{
+                      {{ weatherData.main.temp_min }}{{
                         getMetricSymbol(metricSystem)
                       }}</strong
                     >
@@ -250,7 +251,7 @@
                 >
                   <div class="text-center">
                     <strong class="text-xl">
-                      {{ weatherData.main.temp_max }}°{{
+                      {{ weatherData.main.temp_max }}{{
                         getMetricSymbol(metricSystem)
                       }}</strong
                     >

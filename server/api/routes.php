@@ -65,7 +65,9 @@ switch ($_SERVER['REQUEST_METHOD']) {
             case 'search-location':
                 echo json_encode($post->searchByLocation($data));
                 break;
-
+            case 'forecast-location':
+                echo json_encode($post->getForecastByLocation($data));
+                break;
             case 'reverse-geocode-location':
                 echo json_encode($post->reverseGeocodeLocation($data));
                 break;
