@@ -36,7 +36,6 @@ export class AppComponent implements OnInit, OnDestroy {
   searchForm: any;
   private subscriptions = new Subscription();
   weatherData: any;
-  forecastData: any;
   loading: boolean = false;
   loadingSuggestions: boolean = false;
   metricSystem: any = '&units=metric'; // My default metric system.
@@ -46,6 +45,8 @@ export class AppComponent implements OnInit, OnDestroy {
   inputFocused: boolean = false;
   clickingSuggestion = false;
   showNotFoundMessage = false;
+  dailyForecast: any[] = [];
+  hourlyForecasts: any[] = [];
 
   currentDate: string = '';
 
@@ -69,7 +70,7 @@ export class AppComponent implements OnInit, OnDestroy {
       this.showAdvanced = JSON.parse(showAdvancedString);
     }
 
-    this.currentDate = this.formatDate(new Date());
+    this.currentDate = new Date().toISOString().split('T')[0];
   }
 
   ngOnInit(): void {
@@ -107,16 +108,6 @@ export class AppComponent implements OnInit, OnDestroy {
       });
 
     document.addEventListener('click', this.onDocumentClick.bind(this));
-  }
-
-  formatDate(date: Date): string {
-    const options: Intl.DateTimeFormatOptions = {
-      weekday: 'long',
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
-    };
-    return new Intl.DateTimeFormat('en-US', options).format(date);
   }
 
   onDocumentClick(event: MouseEvent) {
@@ -184,6 +175,7 @@ export class AppComponent implements OnInit, OnDestroy {
       this.weather.searchByLocation(userLocation).subscribe(
         (res: any) => {
           this.weatherData = res.payload;
+          console.log(this.weatherData);
           this.loading = false;
         },
         (error) => {
@@ -193,16 +185,19 @@ export class AppComponent implements OnInit, OnDestroy {
       )
     );
     this.subscriptions.add(
-      this.weather.getForecastByLocation(userLocation).subscribe((res:any)=>{
-        this.forecastData = res.payload;
-        console.log(this.forecastData);
-        this.loading = false;
-      },
-      (error) => {
-        console.error('Error fetching weather:', error);
-        this.loading = false;
-      })
-    )
+      this.weather.getForecastByLocation(userLocation).subscribe(
+        (res: any) => {
+          this.processForecastData(res.payload);
+          console.log(this.dailyForecast); // Check the processed data
+          console.log(res.payload); // Check the processed data
+          this.loading = false;
+        },
+        (error) => {
+          console.error('Error fetching weather:', error);
+          this.loading = false;
+        }
+      )
+    );
   }
 
   searchByCity() {
@@ -314,6 +309,43 @@ export class AppComponent implements OnInit, OnDestroy {
       default:
         return 'N';
     }
+  }
+
+  processForecastData(data: any) {
+    const forecasts = data.list;
+    const dailyData: { [key: string]: any } = {};
+
+    forecasts.forEach((item: any) => {
+      const date = new Date(item.dt * 1000).toISOString().split('T')[0]; // Get the date in YYYY-MM-DD format
+      if (!dailyData[date]) {
+        dailyData[date] = {
+          temp_min: item.main.temp_min,
+          temp_max: item.main.temp_max,
+          weather: item.weather[0],
+          date: date,
+        };
+      } else {
+        dailyData[date].temp_min = Math.min(
+          dailyData[date].temp_min,
+          item.main.temp_min
+        );
+        dailyData[date].temp_max = Math.max(
+          dailyData[date].temp_max,
+          item.main.temp_max
+        );
+      }
+    });
+
+    this.dailyForecast = Object.values(dailyData);
+    this.filterHourlyForecastsForCurrentDate(forecasts);
+  }
+
+  filterHourlyForecastsForCurrentDate(forecasts: any[]) {
+    const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
+    this.hourlyForecasts = forecasts.filter((item: any) => {
+      const itemDate = new Date(item.dt * 1000).toISOString().split('T')[0];
+      return itemDate === today;
+    });
   }
 
   ngOnDestroy(): void {
