@@ -8,8 +8,56 @@
   --shadow-light: rgba(255, 255, 255, 0.1);
 }
 
+:root::-webkit-scrollbar {
+  display: none;
+}
+
+:root {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
 body {
   background-color: #051e36;
+}
+
+.scrollable-content:hover,
+.scrollable-content:active,
+.scrollable-content:focus {
+  overflow-x: scroll;
+}
+
+::-webkit-scrollbar {
+  height: 10px;
+  width: 10px;
+}
+
+.scrollable-content::-webkit-scrollbar-thumb {
+  background-color: white;
+  width: 1px;
+  border-radius: 20px;
+}
+
+.scrollable-content::-webkit-scrollbar-track {
+  background-color: #03172a;
+  width: 1px;
+  border-radius: 20px;
+}
+
+.sidebar-scroll::-webkit-scrollbar-thumb {
+  background-color: white;
+  border-radius: 20px;
+}
+
+.sidebar-scroll::-webkit-scrollbar-track {
+  background-color: #03172a;
+  border-radius: 20px;
+}
+
+.sidebar-scroll:hover,
+.sidebar-scroll:active,
+.sidebar-scroll:focus {
+  overflow-y: scroll;
 }
 
 .view-options {
@@ -35,68 +83,13 @@ body {
   background-color: var(--yellow-1);
 }
 
-button {
-  font-size: 12px;
-  color: #fff;
-  font-weight: 600;
-}
-
-.weather-data {
-  position: relative;
-  z-index: 1;
-  width: 100%;
-  height: 100%;
-  background-color: var(--yellow-1);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-.boltIcon {
-  position: absolute;
-  top: 10px;
-  right: 13px;
-  color: var(--white);
-}
-
-.boltIcon svg {
-  text-shadow: black 1px 1px 1px;
-}
-
-.location {
-  color: var(--white);
-  text-align: center;
-  font-size: 30px;
-  font-weight: 500;
-  text-shadow: black 1px 1px 1px;
-}
-
-.temperature {
-  color: var(--white);
-  font-size: 45px;
-  text-align: center;
-  font-weight: 800;
-  text-shadow: black 1px 1px 1px;
-}
-
-.more-info-container {
-  margin-top: 4px;
-  flex: 1;
-  border-bottom-left-radius: 20px;
-  border-bottom-right-radius: 20px;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
 .mat-mdc-menu-panel {
   position: absolute;
   top: 70px;
   right: 400px;
-  min-width: 300px;
+  min-width: 400px;
   max-width: 500px;
-  width: 40%;
+  width: 50%;
   overflow: auto;
   -webkit-overflow-scrolling: touch;
   box-sizing: border-box;
